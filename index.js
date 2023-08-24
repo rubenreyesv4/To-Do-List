@@ -8,7 +8,6 @@ taskForm.addEventListener('submit', function (event) {
     const taskDescription = document.getElementById('task-description').value;
 
     addTask(taskTitle, taskDescription);
-
     taskForm.reset();
 });
 
@@ -19,14 +18,39 @@ function addTask(title, description) {
     const taskHeader = document.createElement('div');
     taskHeader.classList.add('task-header');
 
-    const taskTitleElement = document.createElement('h3');
-    taskTitleElement.textContent = title;
+    const taskTitleElement = createHeading('h3', title);
 
-    const taskDateElement = document.createElement('p');
+    const taskDateElement = createParagraph(`Agregado el: ${getCurrentFormattedDate()}`);
+
+    const taskActions = createTaskActions(taskElement, title, description);
+
+    const taskDescriptionElement = createParagraph(description);
+
+    taskHeader.append(taskTitleElement, taskDateElement, taskActions);
+
+    taskElement.append(taskHeader, taskDescriptionElement);
+
+    taskList.appendChild(taskElement);
+}
+
+function createHeading(tagName, text) {
+    const heading = document.createElement(tagName);
+    heading.textContent = text;
+    return heading;
+}
+
+function createParagraph(text) {
+    const paragraph = document.createElement('p');
+    paragraph.textContent = text;
+    return paragraph;
+}
+
+function getCurrentFormattedDate() {
     const currentDate = new Date();
-    const formattedDate = `${currentDate.toLocaleDateString()} ${currentDate.toLocaleTimeString()}`;
-    taskDateElement.textContent = `Agregado el: ${formattedDate}`;
+    return `${currentDate.toLocaleDateString()} ${currentDate.toLocaleTimeString()}`;
+}
 
+function createTaskActions(taskElement, title, description) {
     const taskActions = document.createElement('div');
     taskActions.classList.add('task-actions');
 
@@ -35,28 +59,15 @@ function addTask(title, description) {
     });
 
     const editButton = createButton('Editar', function () {
-        editTask(taskElement, taskTitleElement, title, description);
+        editTask(taskElement, title, description);
     });
 
     const deleteButton = createButton('Eliminar', function () {
         taskElement.remove();
     });
 
-    taskActions.appendChild(completeButton);
-    taskActions.appendChild(editButton);
-    taskActions.appendChild(deleteButton);
-
-    const taskDescriptionElement = document.createElement('p');
-    taskDescriptionElement.textContent = description;
-
-    taskHeader.appendChild(taskTitleElement);
-    taskHeader.appendChild(taskDateElement);
-    taskHeader.appendChild(taskActions);
-
-    taskElement.appendChild(taskHeader);
-    taskElement.appendChild(taskDescriptionElement);
-
-    taskList.appendChild(taskElement);
+    taskActions.append(completeButton, editButton, deleteButton);
+    return taskActions;
 }
 
 function createButton(text, onClick) {
@@ -66,12 +77,12 @@ function createButton(text, onClick) {
     return button;
 }
 
-function editTask(taskElement, taskTitleElement, currentTitle, currentDescription) {
+function editTask(taskElement, currentTitle, currentDescription) {
     const newTitle = prompt('Editar título:', currentTitle);
     if (newTitle !== null && newTitle !== '') {
         const newDescription = prompt('Editar descripción:', currentDescription);
         if (newDescription !== null) {
-            taskTitleElement.textContent = newTitle;
+            taskElement.querySelector('h3').textContent = newTitle;
             taskElement.querySelector('p').textContent = newDescription;
         }
     }
